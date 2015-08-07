@@ -25,5 +25,8 @@
   "dependencies": {
     "bson": "^0.4.11",
     "bson-stream": "0.0.5"
+  },
+  "devDependencies": {
+    "dual-protocol": "^0.4.2"
   }
 }
