@@ -1,37 +1,31 @@
 "use strict";
 
-var bson = require("bson");
-var BSON = new bson.BSONPure.BSON();
-var BSONStream = require('bson-stream');
+var dual = require('dual-protocol')
+.use(require('./index'));
 
-var net = require('net');
-var server = net.createServer(function(c) { //'connection' listener
-    c.pipe(new BSONStream()).on('data', function (obj) {
-        console.log(obj);
-        c.write(BSON.serialize({ message: 'hello' }));
+var d = dual();
+// d.mount(['**'], function (body, ctxt) {
+//     console.log(ctxt.from.join('/'), ' -> ', ctxt.to.join('/'));
+// });
+
+d.tcpServer(8124);
+d.mount(['serverRelay'], function (body, ctxt) {
+    console.log('received server relay', body);
+    d.send(['tcpServer', 'serverRelay'], [], body);
+});
+
+d.mount(['connect', 'tcpClient', '::client'], function (body, ctxt) {
+    console.log('client connected: ', ctxt.params.client);
+    var relayRoute = ['tcpClient'].concat(ctxt.params.client).concat('clientRelay');
+    d.mount(['clientRelay'], function (body, ctxt) {
+        console.log('recieved client relay: ', body);
+        d.send(relayRoute, [], body);
     });
-
-  // console.log('client connected');
-  c.on('end', function() {
-    console.log('client disconnected');
-  });
-  // c.write('hello\r\n');
-  // c.pipe(c);
-});
-server.listen(8124, function() { //'listening' listener
-  console.log('server bound');
+    d.send(relayRoute, [], 'Hello Client!');
 });
 
-
-var client = net.connect({port: 8124}
-                         , function() { //'connect' listener
-                             console.log('connected to server!');
-                             client.write(BSON.serialize({ message: 'world' }));
-                         });
-client.pipe(new BSONStream()).on('data', function (obj) {
-    console.log(obj);
-    client.end();
-});
-client.on('end', function() {
-  console.log('disconnected from server');
+d.tcpConnect(8124);
+d.mount(['connect', 'tcpServer'], function (body, ctxt) {
+    console.log('connected to server');
+    d.send(['tcpServer', 'serverRelay'], [], 'Hello Server!');
 });
