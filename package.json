@@ -1,0 +1,25 @@
+{
+  "name": "dual-tcp",
+  "version": "0.0.0",
+  "description": "Tranport dual-protocol messages over TCP",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/plediii/dual-tcp.git"
+  },
+  "keywords": [
+    "dualapi",
+    "dual-protocol",
+    "tcp",
+    "bson"
+  ],
+  "author": "Paul J. Ledbetter III",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/plediii/dual-tcp/issues"
+  },
+  "homepage": "https://github.com/plediii/dual-tcp#readme"
+}
