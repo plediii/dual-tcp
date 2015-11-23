@@ -7,9 +7,6 @@ var dual = require('dual-protocol')
 .use(require('./index'));
 
 var d = dual();
-// d.mount(['**'], function (body, ctxt) {
-//     console.log(ctxt.from.join('/'), ' -> ', ctxt.to.join('/'));
-// });
 
 d.tcpServer(8124);
 d.mount(['serverRelay'], function (body, ctxt) {
