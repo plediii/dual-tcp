@@ -1,5 +1,5 @@
 # dual-tcp
-Transport dual-protocol messages over TCP
+Transport dual-protocol messages over TCP using BSON.
 
 
 ```javascript
