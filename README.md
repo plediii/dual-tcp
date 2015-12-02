@@ -1,4 +1,4 @@
-# dual-tcp
+# dual-tcp [![Build Status](https://travis-ci.org/plediii/dual-tcp.svg)](https://travis-ci.org/plediii/dual-tcp)
 Transport dual-protocol messages over TCP using BSON.
 
 
