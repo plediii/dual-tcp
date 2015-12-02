@@ -4,7 +4,9 @@
   "description": "Tranport dual-protocol messages over TCP",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "jshint *.js test",
+    "test": "node test",
+    "coverage": "istanbul cover test"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,11 @@
     "bson-stream": "0.0.5"
   },
   "devDependencies": {
-    "dual-protocol": "^0.4.2"
-  }
+    "dual-protocol": "^0.4.2",
+    "jshint": "^2.8.0",
+    "tape": "^4.2.2"
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }
