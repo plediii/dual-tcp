@@ -36,7 +36,7 @@ module.exports = function (Domain, libs) {
                         };
                         d.send({
                             to: msg.to
-                            , from: clientRoute.concat(msg.from || [])
+                            , from: clientRoute.concat(msg.from)
                             , body: msg.body
                             , options: msg.options
                         });

@@ -320,8 +320,6 @@ test('dual-tcp', function (t) {
         clientdomain.tcpConnect(['tcpServer'], port);
     });
 
-
-
     t.test('Should send messages to client', function (s) {
         s.plan(1);
         var port = nextPort();
