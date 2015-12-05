@@ -159,83 +159,118 @@ test('dual-tcp', function (t) {
     });
 
     t.test('Should disconnect client on client on server close', function (s) {
-        s.plan(1);
+        s.plan(4);
         var port = nextPort();
         var clientdomain = dual();
         var serverdomain = dual();
         var serv = serverdomain.tcpServer(['tcpClient'], port);
         var connections = [];
+        var listenerCount;
+        var connected = false;
         serv.on('connection', function (socket) {
             connections.push(socket);
         });
         var client;
         clientdomain.mount(['disconnect', 'tcpServer'], function () {
+            s.ok(connected, 'connect before disconnect');
+            s.equal(listenerCount, clientdomain.listeners('**').length, 'should not leak listeners');
             s.pass('Disconnected client on client');
         });
 
         clientdomain.mount(['connect', 'tcpServer'], function (body, ctxt) {
+            s.ok(!connected, 'connect only once');
+            connected = true;
             connections.forEach(function (socket) {
                 socket.destroy();
             });
         });
+        listenerCount = clientdomain.listeners('**').length;
         client = clientdomain.tcpConnect(['tcpServer'], port);
     });
 
     t.test('Should disconnect client on client on client close', function (s) {
-        s.plan(1);
+        s.plan(4);
         var port = nextPort();
         var clientdomain = dual();
         var serverdomain = dual();
         var serv = serverdomain.tcpServer(['tcpClient'], port);
         var connections = [];
+        var listenerCount;
+        var connected = false;
         serv.on('connection', function (socket) {
             connections.push(socket);
         });
         var client;
+        clientdomain.mount(['disconnect', 'tcpServer'], function () {
+            s.ok(connected, 'connect before disconnect');
+            s.pass('Disconnected client on client');
+            s.equal(listenerCount, clientdomain.listeners('**').length);
+        });
         clientdomain.mount(['connect', 'tcpServer'], function (body, ctxt) {
-            clientdomain.on(['disconnect', 'tcpServer'], function () {
-                s.pass('Disconnected client on client');
-            });
+            s.ok(!connected, 'connect only once');
+            connected = true;
             client.destroy();
         });
+        listenerCount = clientdomain.listeners('**').length;
         client = clientdomain.tcpConnect(['tcpServer'], port);
     });
 
     t.test('Should disconnect client on server on client close', function (s) {
-        s.plan(1);
+        s.plan(5);
         var port = nextPort();
         var clientdomain = dual();
         var serverdomain = dual();
         var serv = serverdomain.tcpServer(['tcpClient'], port);
         var client;
+        var listenerCount;
+        var connected = false;
+        var clientpoint;
+        serverdomain.mount(['disconnect', 'tcpClient', '::client'], function (body, ctxt) {
+            s.ok(connected, 'connect before disconnect');
+            s.pass('Disconnected client on server');
+            s.equal(listenerCount, serverdomain.listeners('**').length);
+            s.deepEqual(clientpoint, ctxt.params.client);
+        });
         serverdomain.mount(['connect', 'tcpClient', '::client'], function (body, ctxt) {
-            serverdomain.on(['disconnect', 'tcpClient'].concat(ctxt.params.client), function () {
-                s.pass('Disconnected client on server');
-            });
+            clientpoint = ctxt.params.client;
+            s.ok(!connected, 'connect only once');
+            connected = true
             client.destroy();
         });
+        listenerCount = serverdomain.listeners('**').length;
         client = clientdomain.tcpConnect(['tcpServer'], port);
     });
 
     t.test('Should disconnect client on server on server close', function (s) {
-        s.plan(1);
+        s.plan(5);
         var port = nextPort();
         var clientdomain = dual();
         var serverdomain = dual();
         var serv = serverdomain.tcpServer(['tcpClient'], port);
         var connections = [];
+        var listenerCount;
         serv.on('connection', function (socket) {
             connections.push(socket);
         });
         var client;
+        var connected = false;
+        var clientpoint;
+        serverdomain.mount(['disconnect', 'tcpClient', '::client'], function (body, ctxt) {
+            s.ok(connected, 'connect before disconnect');
+            s.pass('Disconnected client on server');
+            s.equal(listenerCount, serverdomain.listeners('**').length);
+            s.deepEqual(clientpoint, ctxt.params.client);
+        });
+
         serverdomain.mount(['connect', 'tcpClient', '::client'], function (body, ctxt) {
-            serverdomain.mount(['disconnect', 'tcpClient'].concat(ctxt.params.client), function () {
-                s.pass('Disconnected client on server');
-            });
+            clientpoint = ctxt.params.client;
+            s.ok(!connected, 'connect only once');
+            connected = true;
             connections.forEach(function (socket) {
                 socket.end();
             });
         });
+        listenerCount = serverdomain.listeners('**').length;
         client = clientdomain.tcpConnect(['tcpServer'], port);
     });
 

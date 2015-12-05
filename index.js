@@ -54,6 +54,18 @@ module.exports = function (Domain, libs) {
         var serverRoute = point;
         var client = net.connect({ port: port, host: host }
                            , function() {
+                               var handler = function (body, ctxt) {
+                                   client.write(BSON.serialize({
+                                       to: ctxt.params.serverhost
+                                       , from: ctxt.from
+                                       , body: ctxt.body
+                                       , options: ctxt.options
+                                   }));
+                               };
+                               d.mount(serverRoute.concat('::serverhost'), handler);
+                               var cleanup = function () {
+                                   d.removeListener(serverRoute.concat('**'), handler)
+                               };
                                client.pipe(new BSONStream()).on('data', function (msg) {
                                    d.send({
                                        to: msg.to
@@ -64,15 +76,8 @@ module.exports = function (Domain, libs) {
                                });
                                client.on('close', function() {
                                    client.destroy();
+                                   cleanup();
                                    d.send(['disconnect'].concat(point));
-                               });
-                               d.mount(serverRoute.concat('::serverhost'), function (body, ctxt) {
-                                   client.write(BSON.serialize({
-                                       to: ctxt.params.serverhost
-                                       , from: ctxt.from
-                                       , body: ctxt.body
-                                       , options: ctxt.options
-                                   }));
                                });
                                d.send(['connect'].concat(serverRoute));
                            });
