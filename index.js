@@ -44,7 +44,7 @@ module.exports = function (Domain, libs) {
                     d.send(['connect'].concat(clientRoute));
                 });
         });
-        server.listen(port, function() { 
+        server.listen(port, '0.0.0.0', function() { 
             //'listening' listener
         });
         return server;
