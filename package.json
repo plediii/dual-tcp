@@ -1,6 +1,6 @@
 {
   "name": "dual-tcp",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Tranport dual-protocol messages over TCP",
   "main": "index.js",
   "scripts": {
