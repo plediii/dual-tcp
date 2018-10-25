@@ -17,6 +17,10 @@ module.exports = function (Domain, libs) {
                         d.unmount(clientRoute);
                         d.send(['disconnect'].concat(clientRoute));
                     });
+                    c.on('error', function () {
+                        d.unmount(clientRoute);
+                        d.send(['disconnect'].concat(clientRoute));
+                    });
                     d.mount(clientRoute.concat('::clientHost'), function (body, ctxt) {
                         c.write(BSON.serialize({
                             to: ctxt.params.clientHost
@@ -75,6 +79,11 @@ module.exports = function (Domain, libs) {
                                    });
                                });
                                client.on('close', function() {
+                                   client.destroy();
+                                   cleanup();
+                                   d.send(['disconnect'].concat(point));
+                               });
+                               client.on('error', function() {
                                    client.destroy();
                                    cleanup();
                                    d.send(['disconnect'].concat(point));
